@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dronecine</title>
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/demo.css">
+
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.js"></script>
+
+  <!-- <script src="build/tracking.js"></script>
+  <script src="build/data/face-min.js"></script>
+  <script src="src/alignment/training/Landmarks.js"></script>
+  <script src="src/alignment/training/Regressor.js"></script> -->
+
+  <script src="build/tracking-min.js"></script>
+  <script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script src="assets/stats.min.js"></script>
+  <script src="assets/color_camera_gui.js"></script>
+   
+   <!-- <script src="../build/data/face-min.js"></script> -->
+
+  <!-- <script src="script.js"></script> -->
+
+</head>
+<body>
+
+  <div class="row">
+    <img style="display: block; position: absolute; margin-top: 30px; margin-left: 30px; width: 200px; float: left;" src="imgs/logo.png" alt="">
+  </div>
+
+  
+
+  <div class="container">
+    <div class="col-xs-12" style="float: left; width: 100%; height: 440px">
+       <div class="regra"></div>
+        <div class="demo-frame">
+          <div class="demo-container">
+            <video id="video" width="800" height="450" preload autoplay loop muted controls></video>
+            <canvas id="canvas" width="800" height="450"></canvas>
+          </div>
+        </div>
+    </div>
+
+  <div class="" style="float: left; width: 60%; margin-left: 20%; height: auto; margin-top: 80px">
+    <div class="col-md-12">
+
+        <div class="carousel slide carousel-fade" id="myCarousel">
+            <div class="carousel-inner">
+                  <div class="item active">
+                    <div class="row">
+                        <div class="col-xs-3"><a href="javascript: plano('terco_1')" class="thumbnail"><img src="imgs/tercos1.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('terco_2')" class="thumbnail"><img src="imgs/tercos2.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('terco_3')" class="thumbnail"><img src="imgs/tercos3.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('terco_4')" class="thumbnail"><img src="imgs/tercos4.jpg" alt="Image" style="width:100%;"></a></div>
+                      </div>
+                  </div>
+                  <div class="item">
+                    <div class="row">
+                        <div class="col-xs-3"><a href="javascript: plano('long_shot')" class="thumbnail"><img src="imgs/long_shot.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('medium_long_shot')" class="thumbnail"><img src="imgs/medium_long_shot.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('medium_shot')" class="thumbnail"><img src="imgs/medium_shot.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('medium_close_up')" class="thumbnail"><img src="imgs/medium_close_up.jpg" alt="Image" style="width:100%;"></a></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="row">
+                        <div class="col-xs-3"><a href="javascript: plano('close_up')" class="thumbnail"><img src="imgs/close_up.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('looking_room')" class="thumbnail"><img src="imgs/looking_room.jpg" alt="Image" style="width:100%;"></a></div>
+                        <div class="col-xs-3"><a href="javascript: plano('walking_room')" class="thumbnail"><img src="imgs/walking_room.jpg" alt="Image" style="width:100%;"></a></div>
+                      </div>
+                  </div>
+            </div>
+
+        </div><!--.carousel-inner-->
+          <a data-slide="prev" href="#myCarousel" class="left carousel-control">‹</a>
+          <a data-slide="next" href="#myCarousel" class="right carousel-control">›</a>
+        </div><!--.Carousel-->
+
+        <!-- <p>
+          <button class="btn" onclick="x(1)">x</button>
+          <button class="btn" onclick="y(1)">y</button>
+          <button class="btn" onclick="z(1)">z</button>
+        </p>
+        <p>
+          <button class="btn" onclick="x(0)">Stop x</button>
+          <button class="btn" onclick="y(0)">Stop y</button>
+          <button class="btn" onclick="z(0)">Stop z</button>
+        </p>
+
+        <p>
+          <button class="btn" onclick="x(-1)">Back x</button>
+          <button class="btn" onclick="y(-1)">Back y</button>
+          <button class="btn" onclick="z(-1)">Back z</button>
+        </p> -->
+                 
+    </div>
+  </div>
+</div><!--.container-->
+
+
+<script src="node_modules/file-saver/FileSaver.min.js"></script>
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.js"></script>
+<script src="build/tracking-min.js"></script>
+<script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
+<script src="assets/stats.min.js"></script>
+<script src="assets/color_camera_gui.js"></script>
+
+<script>
+  let proporcaoPlano = 0.0266;
+  let centroHozPlano = 250;
+  let centroVerPlano = 250;
+  let limiar = 0.01;
+  let limiarX = limiar * 800;
+  let limiarY = limiar * 450;
+  let limiarZ = limiar * limiar;
+
+  tracking.ColorTracker.prototype.minDimension = 49;
+
+  function plano(tipo) {
+      if (tipo === "terco_1") {
+          proporcaoPlano = 0.0206;
+          centroHozPlano = 275;
+          centroVerPlano = 245;
+      } else if (tipo === "terco_2") {
+        proporcaoPlano = 0.0225;
+        centroHozPlano = 275;
+        centroVerPlano = 390;
+      } else if (tipo === "terco_3") {
+          proporcaoPlano = 0.020;
+          centroHozPlano = 550;
+          centroVerPlano = 245;
+        } else if (tipo === "terco_4") {
+          proporcaoPlano = 0.0225;
+          centroHozPlano = 550;
+          centroVerPlano = 390;
+        } else if (tipo === "long_shot") {
+          proporcaoPlano = 0.030;
+          centroHozPlano = 424;
+          centroVerPlano = 180;
+        } else if (tipo === "medium_long_shot") {
+          proporcaoPlano = 0.1000;
+          centroHozPlano = 407;
+          centroVerPlano = 267.5;
+        } else if (tipo === "medium_shot") {
+          proporcaoPlano = 0.08;
+          centroHozPlano = 380.5;
+          centroVerPlano = 402.5;
+        } else if (tipo === "medium_close_up") {
+          proporcaoPlano = 0.1;
+          centroHozPlano = 387;
+          centroVerPlano = 393.5;
+      } else if (tipo === "close_up") {
+        proporcaoPlano = 0.2639;
+          centroHozPlano = 163.5;
+          centroVerPlano = 480;
+        } else if (tipo === "looking_room") {
+          proporcaoPlano = 0.096;
+          centroHozPlano = 538.5;
+          centroVerPlano = 332;
+        } else if (tipo === "walking_room") {
+          proporcaoPlano = 0.0485;
+          centroHozPlano = 545.5;
+          centroVerPlano = 278.5;
+        }
+      }
+  
+  let video = document.getElementById('video');
+  let canvas = document.getElementById('canvas');
+  let context = canvas.getContext('2d');
+  let count = 0;
+  
+  let valores = [];
+  let mediaProporcaoAtual = 0;
+  let mediaCenterVer = 0;
+  let mediaCenterHor = 0;
+
+  try {
+    var isFileSaverSupported = !!new Blob;
+} catch (e) {}
+
+// var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+
+  
+  // var FileSaver = require('file-saver');
+  // var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+  
+  let rectHeight, rectWidth, centerVer, centerHor;
+
+  let tracker = new tracking.ColorTracker();
+  
+  var vel = 15;
+
+  tracking.track('#video', tracker, { camera: true });
+
+
+  tracker.on('track', function (event) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      event.data.forEach(function (rect) {
+
+          rectHeight = rect.height;
+          rectWidth = rect.width;
+
+          centerVer = (rect.width / 2) + rect.y;
+          centerHor = (rect.height / 2) + rect.x;
+
+          proporcaoAtual = (rectHeight * rectWidth) / (canvas.height * canvas.width);
+
+          if (proporcaoPlano - mediaProporcaoAtual > limiarZ) {
+              z(vel);
+          } else if (proporcaoPlano - mediaProporcaoAtual < -limiarZ) {
+              z(-vel);
+          } else {
+              z(0);
+          }
+
+          if (centroHozPlano - mediaCenterHor < -limiarX) {
+              x(vel);
+          } else if (centroHozPlano - mediaCenterHor > limiarX) {
+              x(-vel);
+          } else {
+              x(0);
+          }
+
+          if (centroVerPlano - mediaCenterVer > limiarY) {
+              y(vel);
+          } else if (centroVerPlano - mediaCenterVer < -limiarY) {
+              y(-vel);
+          } else {
+              y(0);
+          }
+
+          let novosValores = {
+              "proporcaoAtual": proporcaoAtual,
+              "centerVer": centerVer,
+              "centerHor": centerHor
+          }
+
+          let tamArray = 15;
+
+          if (count >= tamArray) {
+              // console.log("valores: ", valores);
+              valores[count % tamArray] = novosValores;
+              valores.forEach(function (valor) {
+
+                  mediaProporcaoAtual = mediaProporcaoAtual + valor.proporcaoAtual;
+                  mediaCenterVer = mediaCenterVer + valor.centerVer;
+                  mediaCenterHor = mediaCenterHor + valor.centerHor;
+              })
+              mediaProporcaoAtual = mediaProporcaoAtual / tamArray;
+              mediaCenterVer = mediaCenterVer / tamArray;
+              mediaCenterHor = mediaCenterHor / tamArray;
+          } else {
+              valores.push(novosValores);
+          }
+          count++;
+
+          if (rect.color === 'custom') {
+              rect.color = "tracker.customColor";
+          }
+
+          context.strokeStyle = rect.color;
+          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+          context.font = '11px Helvetica';
+          context.fillStyle = "#fff";
+          context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+          context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+      });
+  });
+
+  initGUIControllers(tracker);
+
+  let conectado = false;
+
+  console.log('Conectando ao servidor do websocket ...');
+  let connection = new WebSocket('ws://localhost:9000/Echo');
+  console.log('Pronto');
+
+  connection.onopen = function () {
+      conectado = true;
+      console.log('Conexão aberta');
+  };
+
+  function x(value) {
+      if (conectado) {
+          connection.send("x " + value);
+      }
+  }
+  function y(value) {
+      if (conectado) {
+          connection.send("y " + value);
+      }
+  }
+  function z(value) {
+      if (conectado) {
+          connection.send("z " + value);
+      }
+  }
+
+</script>
+
+</body>
+</html>
